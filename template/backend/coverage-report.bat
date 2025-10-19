@@ -9,16 +9,13 @@ dotnet restore Ambev.DeveloperEvaluation.sln
 dotnet build Ambev.DeveloperEvaluation.sln --configuration Release --no-restore
 
 REM Run tests with coverage
-dotnet test Ambev.DeveloperEvaluation.sln --no-restore --verbosity normal ^
-/p:CollectCoverage=true ^
-/p:CoverletOutputFormat=cobertura ^
-/p:CoverletOutput=./TestResults/coverage.cobertura.xml ^
-/p:Exclude="[*]*.Program%2c[*]*.Startup%2c[*]*.Migrations.*"
+dotnet test Ambev.DeveloperEvaluation.sln --collect:"XPlat Code Coverage"
 
 REM Generate coverage report
 reportgenerator ^
--reports:"./tests/**/TestResults/coverage.cobertura.xml" ^
+-reports:"./tests/**/coverage.cobertura.xml" ^
 -targetdir:"./TestResults/CoverageReport" ^
+-filefilters:-**Migrations**
 -reporttypes:Html
 
 REM Removing temporary files

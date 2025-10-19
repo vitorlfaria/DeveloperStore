@@ -46,6 +46,39 @@ public class UserTests
     }
 
     /// <summary>
+    /// Tests that when an active user is inactive, their status changes to Deactivated.
+    /// </summary>
+    [Fact(DisplayName = "User status should change to Inactive when suspended")]
+    public void Given_ActiveUser_When_Deactivated_Then_StatusShouldBeInactive()
+    {
+        // Arrange
+        var user = UserTestData.GenerateValidUser();
+        user.Status = UserStatus.Active;
+
+        // Act
+        user.Deactivate();
+
+        // Assert
+        Assert.Equal(UserStatus.Inactive, user.Status);
+    }
+
+    /// <summary>
+    /// Tests that when an not deleted user is deleted, their isDeleted flag is activated.
+    /// </summary>
+    [Fact(DisplayName = "User isDeleted flag should change to true when deleted")]
+    public void Given_ActiveUser_When_Deleted_Then_IsDeletedShouldBeTrue()
+    {
+        // Arrange
+        var user = UserTestData.GenerateValidUser();
+
+        // Act
+        user.MarkAsDeleted();
+
+        // Assert
+        Assert.True(user.IsDeleted);
+    }
+
+    /// <summary>
     /// Tests that validation passes when all user properties are valid.
     /// </summary>
     [Fact(DisplayName = "Validation should pass for valid user data")]

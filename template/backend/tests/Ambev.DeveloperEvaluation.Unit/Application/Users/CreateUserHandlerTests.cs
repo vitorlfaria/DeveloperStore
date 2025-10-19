@@ -2,7 +2,6 @@ using Ambev.DeveloperEvaluation.Application.Users.CreateUser;
 using Ambev.DeveloperEvaluation.Common.Security;
 using Ambev.DeveloperEvaluation.Domain.Entities;
 using Ambev.DeveloperEvaluation.Domain.Repositories;
-using Ambev.DeveloperEvaluation.Unit.Domain;
 using AutoMapper;
 using FluentAssertions;
 using NSubstitute;
@@ -159,5 +158,30 @@ public class CreateUserHandlerTests
             c.Phone == command.Phone &&
             c.Status == command.Status &&
             c.Role == command.Role));
+    }
+
+    [Fact(DisplayName = "Given command with email that already exists When handling Then shoul thore InvalidOperationException")]
+    public async Task Handle_InvalidRequest_ThrowInvalidOperationException()
+    {
+        var command = CreateUserHandlerTestData.GenerateValidCommand();
+        var user = new User
+        {
+            Id = Guid.NewGuid(),
+            Username = command.Username,
+            Password = command.Password,
+            Email = command.Email,
+            Phone = command.Phone,
+            Status = command.Status,
+            Role = command.Role
+        };
+
+        _userRepository.GetByEmailAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns(user);
+
+        // When
+        var result = await Assert.ThrowsAsync<InvalidOperationException>(() => _handler.Handle(command, CancellationToken.None));
+
+        // Then
+        result.Should().BeOfType<InvalidOperationException>();
     }
 }
