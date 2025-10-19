@@ -18,7 +18,7 @@ public static class SaleTestData
         var items = CreateMultipleValidItems();
 
         foreach (var item in items)
-            sale.Items.Add(item);
+            sale.Products.Add(item);
 
         return sale;
     }

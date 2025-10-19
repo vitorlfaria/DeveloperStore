@@ -31,7 +31,7 @@ public sealed class Sale : BaseEntity
     /// <summary>
     /// Read-only collection of sale items.
     /// </summary>
-    public ICollection<SaleItem> Items { get; private set; } = [];
+    public ICollection<SaleItem> Products { get; private set; } = [];
 
     /// <summary>
     /// The aggregated total amount of the sale (sum of item totals).
@@ -90,7 +90,7 @@ public sealed class Sale : BaseEntity
     public void RecalculateTotals()
     {
         decimal total = 0;
-        foreach (var item in Items)
+        foreach (var item in Products)
         {
             item.ApplyDiscountAndRecalculateTotal();
             total += item.Total;
