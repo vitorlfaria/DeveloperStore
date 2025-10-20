@@ -48,4 +48,16 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : 
     {
         return await _dbSet.FirstOrDefaultAsync(expression, cancellationToken);
     }
+
+    public async Task<TEntity> UpdateAsync(TEntity entity, CancellationToken cancellationToken = default)
+    {
+        _dbSet.Update(entity);
+        await _context.SaveChangesAsync(cancellationToken);
+        return entity;
+    }
+
+    public IQueryable<TEntity> Query(CancellationToken cancellationToken = default)
+    {
+        return _dbSet.AsNoTracking();
+    }
 }
