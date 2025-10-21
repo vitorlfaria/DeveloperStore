@@ -38,6 +38,7 @@ public class CreateUserHandlerTests
     public async Task Handle_ValidRequest_ReturnsSuccessResponse()
     {
         // Given
+        var profile = new CreateUserProfile();
         var command = CreateUserHandlerTestData.GenerateValidCommand();
         var user = new User
         {

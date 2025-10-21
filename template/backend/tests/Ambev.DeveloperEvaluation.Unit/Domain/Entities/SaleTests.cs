@@ -25,7 +25,7 @@ public class SaleTests
         sale.SaleNumber.Should().StartWith("S-");
         sale.Status.Should().Be(SaleStatus.Active);
         sale.TotalAmount.Should().Be(0);
-        sale.Items.Should().BeEmpty();
+        sale.Products.Should().BeEmpty();
     }
 
     [Fact(DisplayName = "Should throw when creating sale with empty CustomerId")]

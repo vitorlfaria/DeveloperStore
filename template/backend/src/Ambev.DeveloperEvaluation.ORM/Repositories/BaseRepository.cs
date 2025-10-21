@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Linq.Expressions;
 using Ambev.DeveloperEvaluation.Domain.Common;
 using Ambev.DeveloperEvaluation.Domain.Repositories;
@@ -27,25 +28,42 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : 
         return entity;
     }
 
-    public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<TEntity?> DeleteAsync(Guid id, CancellationToken cancellationToken = default, string include = "")
     {
-        var entity = await GetByIdAsync(id, cancellationToken);
+        var entity = await GetByIdAsync(id, cancellationToken, include);
         if (entity == null)
-            return false;
+            return null;
 
         entity.MarkAsDeleted();
         _dbSet.Update(entity);
         await _context.SaveChangesAsync(cancellationToken);
-        return true;
+        return entity;
     }
 
-    public async Task<TEntity?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<TEntity?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default, string include = "")
     {
-        return await _dbSet.FirstOrDefaultAsync(e => e.Id == id && !e.IsDeleted, cancellationToken);
+        var query = _dbSet.Where(e => e.Id == id && !e.IsDeleted);
+        if (!string.IsNullOrEmpty(include))
+        {
+            query = query.Include(include);
+        }
+        return await query.FirstOrDefaultAsync(cancellationToken);
     }
 
     public async Task<TEntity?> GetOneByExpression(Expression<Func<TEntity, bool>> expression, CancellationToken cancellationToken = default)
     {
         return await _dbSet.FirstOrDefaultAsync(expression, cancellationToken);
+    }
+
+    public async Task<TEntity> UpdateAsync(TEntity entity, CancellationToken cancellationToken = default)
+    {
+        _dbSet.Update(entity);
+        await _context.SaveChangesAsync(cancellationToken);
+        return entity;
+    }
+
+    public IQueryable<TEntity> Query(CancellationToken cancellationToken = default)
+    {
+        return _dbSet.AsNoTracking();
     }
 }
