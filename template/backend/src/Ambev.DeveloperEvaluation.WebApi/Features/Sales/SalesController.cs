@@ -1,7 +1,10 @@
 using Ambev.DeveloperEvaluation.Application.Sales.CreateSale;
 using Ambev.DeveloperEvaluation.Application.Sales.DeleteSale;
 using Ambev.DeveloperEvaluation.Application.Sales.GetSale;
+using Ambev.DeveloperEvaluation.Application.Sales.GetSalesList;
 using Ambev.DeveloperEvaluation.Application.Sales.UpdateSale;
+using Ambev.DeveloperEvaluation.Common.Calsses;
+using Ambev.DeveloperEvaluation.Domain.Entities;
 using Ambev.DeveloperEvaluation.WebApi.Common;
 using Ambev.DeveloperEvaluation.WebApi.Features.Sales.CreateSale;
 using Ambev.DeveloperEvaluation.WebApi.Features.Sales.DeleteSale;
@@ -24,6 +27,31 @@ public class SalesController : BaseController
     {
         _mediator = mediator;
         _mapper = mapper;
+    }
+
+    /// <summary>
+    /// Retrieves a paginated list of sales
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <param name="_page">The page to be retrieved</param>
+    /// <param name="_size">The number of sales to be retrieved</param>
+    /// <param name="_order">The order to be applied</param>
+    /// <param name="filters">The filters to be applied</param>
+    /// <returns></returns>
+    [HttpGet()]
+    [ProducesResponseType(typeof(PaginatedResponse<Sale>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetSale(
+        CancellationToken cancellationToken,
+        [FromQuery] int _page = 1,
+        [FromQuery] int _size = 10,
+        [FromQuery] string? _order = null,
+        [FromQuery] Dictionary<string, string> filters = null)
+    {
+        var command = new GetSalesQuery { Page = _page, Size = _size, OrderBy = _order, Filters = filters };
+        var response = await _mediator.Send(command, cancellationToken);
+
+        return OkPaginated(response);
     }
 
     /// <summary>

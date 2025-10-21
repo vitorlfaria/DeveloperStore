@@ -1,9 +1,10 @@
+using Ambev.DeveloperEvaluation.Common.Calsses;
 using Ambev.DeveloperEvaluation.Domain.Entities;
 using MediatR;
 
 namespace Ambev.DeveloperEvaluation.Application.Sales.GetSalesList;
 
-public class GetSalesQuery : IRequest<IEnumerable<Sale>>
+public class GetSalesQuery : IRequest<PaginatedList<Sale>>
 {
     /// <summary>
     /// The number os the requested page

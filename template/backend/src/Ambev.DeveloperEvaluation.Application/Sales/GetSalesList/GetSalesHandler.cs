@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Linq.Expressions;
+using Ambev.DeveloperEvaluation.Common.Calsses;
 using Ambev.DeveloperEvaluation.Common.Extensions;
 using Ambev.DeveloperEvaluation.Domain.Entities;
 using Ambev.DeveloperEvaluation.Domain.Enums;
@@ -10,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Ambev.DeveloperEvaluation.Application.Sales.GetSalesList;
 
-public class GetSalesHandler : IRequestHandler<GetSalesQuery, IEnumerable<Sale>>
+public class GetSalesHandler : IRequestHandler<GetSalesQuery, PaginatedList<Sale>>
 {
     private readonly ISaleRepository _saleRepository;
     private readonly IMapper _mapper;
@@ -21,7 +22,7 @@ public class GetSalesHandler : IRequestHandler<GetSalesQuery, IEnumerable<Sale>>
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<Sale>> Handle(GetSalesQuery request, CancellationToken cancellationToken)
+    public async Task<PaginatedList<Sale>> Handle(GetSalesQuery request, CancellationToken cancellationToken)
     {
         var query = _saleRepository.Query(cancellationToken);
         query = ApplyFilters(query, request.Filters);
@@ -32,7 +33,9 @@ public class GetSalesHandler : IRequestHandler<GetSalesQuery, IEnumerable<Sale>>
             .Take(request.Size)
             .ToListAsync(cancellationToken);
 
-        return items;
+        var response = new PaginatedList<Sale>(items, items.Count, request.Page, request.Size);
+
+        return response;
     }
 
     private IQueryable<Sale> ApplyOrdering(IQueryable<Sale> query, string? orderBy)
