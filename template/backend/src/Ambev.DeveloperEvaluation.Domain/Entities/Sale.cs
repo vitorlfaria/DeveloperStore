@@ -1,7 +1,7 @@
 using Ambev.DeveloperEvaluation.Common.Validation;
 using Ambev.DeveloperEvaluation.Domain.Common;
 using Ambev.DeveloperEvaluation.Domain.Enums;
-using Ambev.DeveloperEvaluation.Domain.Exceptions;
+using Ambev.DeveloperEvaluation.Domain.Events;
 using Ambev.DeveloperEvaluation.Domain.Validation;
 using Ambev.DeveloperEvaluation.Domain.ValueObjects;
 
@@ -11,7 +11,7 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities;
 /// The aggregate root representing a sale. It contains SaleItems and encapsulates
 /// all business rules related to a sale.
 /// </summary>
-public sealed class Sale : BaseEntity
+public sealed class Sale : BaseEntity, IHasDomainEvents
 {
     /// <summary>
     /// Human friendly sale number (could be sequential or formatted string).
@@ -42,6 +42,9 @@ public sealed class Sale : BaseEntity
     /// Status of the sale (Active or Cancelled).
     /// </summary>
     public SaleStatus Status { get; set; } = SaleStatus.Active;
+
+    private readonly List<object> _events = [];
+    public IReadOnlyCollection<object> DomainEvents => _events.AsReadOnly();
 
     /// <summary>
     /// Create a new Sale aggregate. Use factory method New(...) to ensure proper initialization.
@@ -102,10 +105,24 @@ public sealed class Sale : BaseEntity
     /// <summary>
     /// Generates a readable sale number.
     /// </summary>
-    public static string GenerateSaleNumber()
+    private static string GenerateSaleNumber()
     {
         var ts = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
         var shortGuid = Guid.NewGuid().ToString().Split('-')[0];
         return $"S-{ts}-{shortGuid}";
     }
+
+    /// <summary>
+    /// Adds an event to the list to be dispatched
+    /// </summary>
+    /// <param name="event">The event to be dispatched</param>
+    public void AddDomainEvent(object @event)
+    {
+        _events.Add(@event);
+    }
+
+    /// <summary>
+    /// Clears all domain events
+    /// </summary>
+    public void ClearDomainEvents() => _events.Clear();
 }

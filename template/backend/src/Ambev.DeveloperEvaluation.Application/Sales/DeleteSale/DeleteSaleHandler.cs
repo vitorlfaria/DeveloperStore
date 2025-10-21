@@ -1,3 +1,4 @@
+using Ambev.DeveloperEvaluation.Domain.Events;
 using Ambev.DeveloperEvaluation.Domain.Repositories;
 using Ambev.DeveloperEvaluation.Domain.ValueObjects;
 using FluentValidation;
@@ -31,6 +32,7 @@ public class DeleteSaleHandler : IRequestHandler<DeleteSaleCommand, DeleteSaleRe
             {
                 saleItem.MarkAsCancelled();
             }
+            deletedSale.AddDomainEvent(new SaleCancelledEvent(deletedSale.Id, deletedSale.SaleNumber, deletedSale.CreatedAt));
             await _saleRepository.UpdateAsync(deletedSale, cancellationToken);
         }
         var result = new DeleteSaleResult { Success = deletedSale != null ? true : false };
