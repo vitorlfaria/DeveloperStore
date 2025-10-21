@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Ambev.DeveloperEvaluation.Domain.Exceptions;
 
 namespace Ambev.DeveloperEvaluation.Domain.ValueObjects;
@@ -12,39 +13,39 @@ public sealed class SaleItem
     private const decimal TEN_PERCENT = 10m;
 
     /// <summary>
+    /// Unique identifier of the sale that this item belongs to.
+    /// </summary>
+    public Guid SaleId { get; set; }
+
+    /// <summary>
     /// Unique identifier of the product in the external product context.
     /// </summary>
     public Guid ProductId { get; private set; }
-
-
-    /// <summary>
-    /// Denormalized product name captured at the moment of sale.
-    /// </summary>
-    public string ProductName { get; private set; } = string.Empty;
-
 
     /// <summary>
     /// Quantity of this product sold.
     /// </summary>
     public int Quantity { get; private set; }
 
-
     /// <summary>
     /// Unit price of the product at the time of sale.
     /// </summary>
     public decimal UnitPrice { get; private set; }
-
 
     /// <summary>
     /// Discount percentage applied to this item (0 - 100).
     /// </summary>
     public decimal DiscountPercentage { get; private set; }
 
-
     /// <summary>
     /// Total monetary value for this item after discount.
     /// </summary>
     public decimal Total { get; private set; }
+
+    /// <summary>
+    /// Property that marks a sale item as canceled.
+    /// </summary>
+    public bool IsCanceled { get; private set; }
 
     /// <summary>
     /// Creates a new SaleItem instance and calculates totals using business rules.
@@ -54,28 +55,13 @@ public sealed class SaleItem
     /// <param name="productName">Product name snapshot.</param>
     /// <param name="unitPrice">Unit price.</param>
     /// <param name="quantity">Quantity to add.</param>
-    public SaleItem(Guid productId, string productName, decimal unitPrice, int quantity)
+    public SaleItem(Guid productId, decimal unitPrice, int quantity)
     {
         ProductId = productId;
-        ProductName = productName.Trim();
         UnitPrice = unitPrice;
         Quantity = quantity;
+        IsCanceled = false;
 
-        ApplyDiscountAndRecalculateTotal();
-    }
-
-
-    /// <summary>
-    /// Updates the quantity of the item. Re-applies discounts and recalculates totals.
-    /// </summary>
-    /// <param name="newQuantity">New quantity value.</param>
-    public void UpdateQuantity(int newQuantity)
-    {
-        if (newQuantity <= 0) throw new DomainException("Quantity must be greater than zero");
-        if (newQuantity > 20) throw new DomainException("Cannot sell more than 20 identical items");
-
-
-        Quantity = newQuantity;
         ApplyDiscountAndRecalculateTotal();
     }
 
@@ -103,5 +89,13 @@ public sealed class SaleItem
         if (quantity >= 4 && quantity < 10) return TEN_PERCENT;
         if (quantity >= 10 && quantity <= 20) return TWENTY_PERCENT;
         return 0m;
+    }
+
+    /// <summary>
+    /// Marks a sale item as cancelled.
+    /// </summary>
+    public void MarkAsCancelled()
+    {
+        IsCanceled = true;
     }
 }

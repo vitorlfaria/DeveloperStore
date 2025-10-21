@@ -28,7 +28,6 @@ public static class SaleTestData
         var faker = new Faker<SaleItem>("pt_BR")
             .CustomInstantiator(f => new SaleItem(
                 productId: Guid.NewGuid(),
-                productName: f.Commerce.ProductName(),
                 unitPrice: f.Random.Decimal(100, 5000),
                 quantity: f.Random.Int(1, 20)
             ));

@@ -31,6 +31,7 @@ public class CreateSaleHandlerTests
     public async Task Handle_ValidRequest_ReturnsSuccessResponse()
     {
         // Given
+        var profile = new CreateSaleProfile();
         var command = CreateSaleHandlerTestData.GenerateValidCommand();
         var sale = CreateSaleHandlerTestData.GenerateValidSaleFromCommand(command);
 

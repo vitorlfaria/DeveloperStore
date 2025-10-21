@@ -29,7 +29,7 @@ public sealed class Sale : BaseEntity
     public Guid BranchId { get; set; }
 
     /// <summary>
-    /// Read-only collection of sale items.
+    /// Collection of sale items.
     /// </summary>
     public ICollection<SaleItem> Products { get; set; } = [];
 

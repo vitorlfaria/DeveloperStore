@@ -1,4 +1,5 @@
 using Ambev.DeveloperEvaluation.Domain.Repositories;
+using Ambev.DeveloperEvaluation.Domain.ValueObjects;
 using FluentValidation;
 using MediatR;
 
@@ -24,6 +25,15 @@ public class DeleteSaleHandler : IRequestHandler<DeleteSaleCommand, DeleteSaleRe
         }
 
         var deleted = await _saleRepository.DeleteAsync(request.Id, cancellationToken);
+        if (deleted)
+        {
+            var sale = await _saleRepository.GetByIdAsync(request.Id, cancellationToken) ?? throw new KeyNotFoundException("Sale not found");
+            foreach (SaleItem saleItem in sale.Products)
+            {
+                saleItem.MarkAsCancelled();
+            }
+            await _saleRepository.UpdateAsync(sale, cancellationToken);
+        }
         var result = new DeleteSaleResult { Success = deleted };
         return result;
     }

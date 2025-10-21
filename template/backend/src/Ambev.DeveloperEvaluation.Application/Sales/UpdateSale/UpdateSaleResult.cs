@@ -13,30 +13,30 @@ public class UpdateSaleResult
     /// <summary>
     /// Human friendly sale number (could be sequential or formatted string).
     /// </summary>
-    public string SaleNumber { get; private set; } = string.Empty;
+    public string SaleNumber { get; set; } = string.Empty;
 
     /// <summary>
     /// External identifier of the customer.
     /// </summary>
-    public Guid CustomerId { get; private set; }
+    public Guid CustomerId { get; set; }
 
     /// <summary>
     /// External identifier of the branch where the sale happened.
     /// </summary>
-    public Guid BranchId { get; private set; }
+    public Guid BranchId { get; set; }
 
     /// <summary>
     /// Read-only collection of sale items.
     /// </summary>
-    public ICollection<SaleItem> Products { get; private set; } = [];
+    public ICollection<SaleItem> Products { get; set; } = [];
 
     /// <summary>
     /// The aggregated total amount of the sale (sum of item totals).
     /// </summary>
-    public decimal TotalAmount { get; private set; } = 0;
+    public decimal TotalAmount { get; set; } = 0;
 
     /// <summary>
     /// Status of the sale (Active or Cancelled).
     /// </summary>
-    public SaleStatus Status { get; private set; } = SaleStatus.Active;
+    public SaleStatus Status { get; set; } = SaleStatus.Active;
 }
