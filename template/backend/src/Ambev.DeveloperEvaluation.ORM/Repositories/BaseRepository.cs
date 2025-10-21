@@ -42,7 +42,12 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : 
 
     public async Task<TEntity?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default, string include = "")
     {
-        return await _dbSet.Where(e => e.Id == id && !e.IsDeleted).Include(include).FirstOrDefaultAsync(cancellationToken);
+        var query = _dbSet.Where(e => e.Id == id && !e.IsDeleted);
+        if (!string.IsNullOrEmpty(include))
+        {
+            query = query.Include(include);
+        }
+        return await query.FirstOrDefaultAsync(cancellationToken);
     }
 
     public async Task<TEntity?> GetOneByExpression(Expression<Func<TEntity, bool>> expression, CancellationToken cancellationToken = default)

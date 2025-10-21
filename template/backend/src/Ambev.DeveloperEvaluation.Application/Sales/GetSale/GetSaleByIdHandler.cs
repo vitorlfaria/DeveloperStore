@@ -32,7 +32,7 @@ public class GetSaleByIdHandler : IRequestHandler<GetSaleByIdQuery, GetSaleByIdR
             throw new ValidationException(validationResult.Errors);
         }
 
-        var sale = await _saleRepository.GetByIdAsync(request.Id, cancellationToken);
+        var sale = await _saleRepository.GetByIdAsync(request.Id, cancellationToken, "Products");
         var response = _mapper.Map<GetSaleByIdResult>(sale);
         return response;
     }
