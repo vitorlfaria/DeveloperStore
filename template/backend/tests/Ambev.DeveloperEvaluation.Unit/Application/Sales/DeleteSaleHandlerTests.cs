@@ -25,8 +25,8 @@ public class DeleteSaleHandlerTests
         // Given
         var command = new DeleteSaleCommand { Id = Guid.NewGuid() };
         var sale = new Sale(Guid.NewGuid(), Guid.NewGuid());
-        _saleRepository.GetByIdAsync(command.Id, Arg.Any<CancellationToken>()).Returns(sale);
-        _saleRepository.DeleteAsync(command.Id, Arg.Any<CancellationToken>())
+        _saleRepository.GetByIdAsync(command.Id, Arg.Any<CancellationToken>(), Arg.Any<string>()).Returns(sale);
+        _saleRepository.DeleteAsync(command.Id, Arg.Any<CancellationToken>(), Arg.Any<string>())
             .Returns(new Sale(Guid.NewGuid(), Guid.NewGuid()));
 
         // When
@@ -35,7 +35,7 @@ public class DeleteSaleHandlerTests
         // Then
         result.Should().NotBeNull();
         result.Success.Should().BeTrue();
-        await _saleRepository.Received(1).DeleteAsync(command.Id, Arg.Any<CancellationToken>());
+        await _saleRepository.Received(1).DeleteAsync(command.Id, Arg.Any<CancellationToken>(), Arg.Any<string>());
     }
 
     [Fact(DisplayName = "Given valid delete command When deletion fails Then returns failure result")]
@@ -43,7 +43,7 @@ public class DeleteSaleHandlerTests
     {
         // Given
         var command = new DeleteSaleCommand { Id = Guid.NewGuid() };
-        _saleRepository.DeleteAsync(command.Id, Arg.Any<CancellationToken>())
+        _saleRepository.DeleteAsync(command.Id, Arg.Any<CancellationToken>(), Arg.Any<string>())
             .Returns((Sale)null);
 
         // When
@@ -52,7 +52,7 @@ public class DeleteSaleHandlerTests
         // Then
         result.Should().NotBeNull();
         result.Success.Should().BeFalse();
-        await _saleRepository.Received(1).DeleteAsync(command.Id, Arg.Any<CancellationToken>());
+        await _saleRepository.Received(1).DeleteAsync(command.Id, Arg.Any<CancellationToken>(), Arg.Any<string>());
     }
 
     [Fact(DisplayName = "Given invalid delete command When handling Then throws validation exception")]

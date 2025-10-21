@@ -36,7 +36,7 @@ public class GetSaleByIdHandlerTests
             TotalAmount = sale.TotalAmount
         };
 
-        _saleRepository.GetByIdAsync(query.Id, Arg.Any<CancellationToken>())
+        _saleRepository.GetByIdAsync(query.Id, Arg.Any<CancellationToken>(), Arg.Any<string>())
             .Returns(sale);
         _mapper.Map<GetSaleByIdResult>(sale).Returns(expectedResult);
 
@@ -48,7 +48,7 @@ public class GetSaleByIdHandlerTests
         result.Id.Should().Be(sale.Id);
         result.SaleNumber.Should().Be(sale.SaleNumber);
         result.TotalAmount.Should().Be(sale.TotalAmount);
-        await _saleRepository.Received(1).GetByIdAsync(query.Id, Arg.Any<CancellationToken>());
+        await _saleRepository.Received(1).GetByIdAsync(query.Id, Arg.Any<CancellationToken>(), Arg.Any<string>());
         _mapper.Received(1).Map<GetSaleByIdResult>(sale);
     }
 
@@ -57,7 +57,7 @@ public class GetSaleByIdHandlerTests
     {
         // Given
         var query = new GetSaleByIdQuery { Id = Guid.NewGuid() };
-        _saleRepository.GetByIdAsync(query.Id, Arg.Any<CancellationToken>())
+        _saleRepository.GetByIdAsync(query.Id, Arg.Any<CancellationToken>(), Arg.Any<string>())
             .Returns((Sale)null);
         _mapper.Map<GetSaleByIdResult>(null).Returns((GetSaleByIdResult)null);
 
@@ -66,7 +66,7 @@ public class GetSaleByIdHandlerTests
 
         // Then
         result.Should().BeNull();
-        await _saleRepository.Received(1).GetByIdAsync(query.Id, Arg.Any<CancellationToken>());
+        await _saleRepository.Received(1).GetByIdAsync(query.Id, Arg.Any<CancellationToken>(), Arg.Any<string>());
         _mapper.Received(1).Map<GetSaleByIdResult>(null);
     }
 
