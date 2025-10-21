@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Linq.Expressions;
 using Ambev.DeveloperEvaluation.Domain.Common;
 using Ambev.DeveloperEvaluation.Domain.Repositories;
@@ -27,21 +28,21 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : 
         return entity;
     }
 
-    public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<TEntity?> DeleteAsync(Guid id, CancellationToken cancellationToken = default, string include = "")
     {
-        var entity = await GetByIdAsync(id, cancellationToken);
+        var entity = await GetByIdAsync(id, cancellationToken, include);
         if (entity == null)
-            return false;
+            return null;
 
         entity.MarkAsDeleted();
         _dbSet.Update(entity);
         await _context.SaveChangesAsync(cancellationToken);
-        return true;
+        return entity;
     }
 
-    public async Task<TEntity?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<TEntity?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default, string include = "")
     {
-        return await _dbSet.FirstOrDefaultAsync(e => e.Id == id && !e.IsDeleted, cancellationToken);
+        return await _dbSet.Where(e => e.Id == id && !e.IsDeleted).Include(include).FirstOrDefaultAsync(cancellationToken);
     }
 
     public async Task<TEntity?> GetOneByExpression(Expression<Func<TEntity, bool>> expression, CancellationToken cancellationToken = default)

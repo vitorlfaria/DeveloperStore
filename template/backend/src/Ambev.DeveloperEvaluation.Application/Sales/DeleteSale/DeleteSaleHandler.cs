@@ -24,17 +24,16 @@ public class DeleteSaleHandler : IRequestHandler<DeleteSaleCommand, DeleteSaleRe
             throw new ValidationException(validationResult.Errors);
         }
 
-        var deleted = await _saleRepository.DeleteAsync(request.Id, cancellationToken);
-        if (deleted)
+        var deletedSale = await _saleRepository.DeleteAsync(request.Id, cancellationToken, "Products");
+        if (deletedSale != null)
         {
-            var sale = await _saleRepository.GetByIdAsync(request.Id, cancellationToken) ?? throw new KeyNotFoundException("Sale not found");
-            foreach (SaleItem saleItem in sale.Products)
+            foreach (SaleItem saleItem in deletedSale.Products)
             {
                 saleItem.MarkAsCancelled();
             }
-            await _saleRepository.UpdateAsync(sale, cancellationToken);
+            await _saleRepository.UpdateAsync(deletedSale, cancellationToken);
         }
-        var result = new DeleteSaleResult { Success = deleted };
+        var result = new DeleteSaleResult { Success = deletedSale != null ? true : false };
         return result;
     }
 }

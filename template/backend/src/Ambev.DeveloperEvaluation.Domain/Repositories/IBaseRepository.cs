@@ -25,7 +25,7 @@ public interface IBaseRepository<T>
     /// <param name="id">The unique identifier of the entity</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>The entity if found, null otherwise</returns>
-    Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default, string includes = "");
 
     /// <summary>
     /// Deletes an entity from the repository
@@ -33,7 +33,7 @@ public interface IBaseRepository<T>
     /// <param name="id">The unique identifier of the entity to delete</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>True if the entity was deleted, false if not found</returns>
-    Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<T?> DeleteAsync(Guid id, CancellationToken cancellationToken = default, string includes = "");
 
     /// <summary>
     /// Gets an entity that satisfies the expression

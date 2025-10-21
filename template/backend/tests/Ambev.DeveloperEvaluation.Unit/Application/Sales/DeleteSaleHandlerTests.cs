@@ -27,7 +27,7 @@ public class DeleteSaleHandlerTests
         var sale = new Sale(Guid.NewGuid(), Guid.NewGuid());
         _saleRepository.GetByIdAsync(command.Id, Arg.Any<CancellationToken>()).Returns(sale);
         _saleRepository.DeleteAsync(command.Id, Arg.Any<CancellationToken>())
-            .Returns(true);
+            .Returns(new Sale(Guid.NewGuid(), Guid.NewGuid()));
 
         // When
         var result = await _handler.Handle(command, CancellationToken.None);
@@ -44,7 +44,7 @@ public class DeleteSaleHandlerTests
         // Given
         var command = new DeleteSaleCommand { Id = Guid.NewGuid() };
         _saleRepository.DeleteAsync(command.Id, Arg.Any<CancellationToken>())
-            .Returns(false);
+            .Returns((Sale)null);
 
         // When
         var result = await _handler.Handle(command, CancellationToken.None);

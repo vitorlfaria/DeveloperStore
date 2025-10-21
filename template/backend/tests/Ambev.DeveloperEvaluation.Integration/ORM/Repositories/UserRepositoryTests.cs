@@ -69,7 +69,7 @@ public class UserRepositoryTests
 
         var deleted = await repository.DeleteAsync(user.Id);
 
-        deleted.Should().BeTrue();
+        deleted.Should().NotBeNull();
 
         var retrieved = await context.Users.FirstOrDefaultAsync(u => u.Id == user.Id);
         retrieved.Should().NotBeNull();
@@ -84,7 +84,7 @@ public class UserRepositoryTests
 
         var deleted = await repository.DeleteAsync(Guid.Empty);
 
-        deleted.Should().BeFalse();
+        deleted.Should().BeNull();
     }
 
     [Fact(DisplayName = "Should return user by email when email exists")]
