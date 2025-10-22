@@ -1,4 +1,4 @@
-using System;
+using Ambev.DeveloperEvaluation.Domain.Exceptions;
 using Xunit;
 
 namespace Ambev.DeveloperEvaluation.Unit.Domain.Exceptions;

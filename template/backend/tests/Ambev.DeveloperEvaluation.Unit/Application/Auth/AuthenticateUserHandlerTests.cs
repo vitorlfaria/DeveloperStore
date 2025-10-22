@@ -36,6 +36,7 @@ public class AuthenticateUserHandlerTests
     public async Task Handle_ValidCredentials_ReturnsToken()
     {
         // Given
+        var profile = new AuthenticateUserProfile();
         var command = AuthenticateUserHandlerTestData.GenerateValidCommand();
         var user = new User
         {

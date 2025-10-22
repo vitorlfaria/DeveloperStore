@@ -35,6 +35,7 @@ public class GetUserHandlerTests
     public async Task Handle_ValidRequest_ReturnsMappedUserResult()
     {
         // Given
+        var profile = new GetUserProfile();
         var command = GetUserHandlerTestData.GenerateValidCommand();
         var user = new User
         {
