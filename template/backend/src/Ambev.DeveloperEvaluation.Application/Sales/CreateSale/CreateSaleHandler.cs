@@ -1,4 +1,5 @@
 using Ambev.DeveloperEvaluation.Domain.Entities;
+using Ambev.DeveloperEvaluation.Domain.Events;
 using Ambev.DeveloperEvaluation.Domain.Repositories;
 using Ambev.DeveloperEvaluation.Domain.Validation;
 using AutoMapper;
@@ -39,6 +40,7 @@ public class CreateSaleHandler : IRequestHandler<CreateSaleCommand, CreateSaleRe
         }
 
         sale.RecalculateTotals();
+        sale.AddDomainEvent(new SaleCreatedEvent(sale.Id, sale.SaleNumber, sale.CreatedAt));
         var createdSale = await _saleRepository.CreateAsync(sale, cancellationToken);
         var result = _mapper.Map<CreateSaleResult>(createdSale);
         return result;

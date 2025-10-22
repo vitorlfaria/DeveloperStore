@@ -1,6 +1,5 @@
 using Ambev.DeveloperEvaluation.Application;
 using Ambev.DeveloperEvaluation.Common.HealthChecks;
-using Ambev.DeveloperEvaluation.Common.Logging;
 using Ambev.DeveloperEvaluation.Common.Security;
 using Ambev.DeveloperEvaluation.Common.Validation;
 using Ambev.DeveloperEvaluation.IoC;
@@ -9,6 +8,8 @@ using Ambev.DeveloperEvaluation.WebApi.Middleware;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using Serilog.Exceptions;
+using Serilog.Events;
 
 namespace Ambev.DeveloperEvaluation.WebApi;
 
@@ -21,7 +22,25 @@ public class Program
             Log.Information("Starting web application");
 
             WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
-            builder.AddDefaultLogging();
+            Log.Logger = new LoggerConfiguration()
+                .Enrich.WithExceptionDetails()
+                .Enrich.WithMachineName()
+                .Enrich.FromLogContext()
+                .WriteTo.Console(
+                    outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}"
+                )
+                .WriteTo.File(
+                    path: "logs/log-.txt",
+                    rollingInterval: RollingInterval.Day,
+                    retainedFileCountLimit: 10,
+                    restrictedToMinimumLevel: LogEventLevel.Information,
+                    outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}"
+                )
+                .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+                .MinimumLevel.Information()
+                .CreateLogger();
+
+            builder.Host.UseSerilog();
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
@@ -68,6 +87,11 @@ public class Program
             app.UseAuthorization();
 
             app.UseBasicHealthChecks();
+
+            app.UseSerilogRequestLogging(options =>
+                {
+                    options.MessageTemplate = "Handled {RequestPath} | StatusCode: {StatusCode} | Elapsed: {Elapsed:0.0000} ms";
+                });
 
             app.MapControllers();
 

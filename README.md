@@ -1,86 +1,148 @@
-# Developer Evaluation Project
+# 🗾 **Sales API – Developer Evaluation**
 
-`READ CAREFULLY`
+## 📘 Overview
 
-## Instructions
-**The test below will have up to 7 calendar days to be delivered from the date of receipt of this manual.**
+This project implements a **Sales Management API** designed with **Domain-Driven Design (DDD)** and **CQRS (Command Query Responsibility Segregation)** principles.  
+It simulates a real-world e-commerce or ERP sales module where each **Sale** can have multiple **Products**, with support for **discounts**, **cancellation**, and **domain event publishing** (via Serilog logging).
 
-- The code must be versioned in a public Github repository and a link must be sent for evaluation once completed
-- Upload this template to your repository and start working from it
-- Read the instructions carefully and make sure all requirements are being addressed
-- The repository must provide instructions on how to configure, execute and test the project
-- Documentation and overall organization will also be taken into consideration
+The goal is to demonstrate architectural quality, testability, and scalability — following the best practices described in the initial documentation (`overview.md`, `general-api.md`, etc.).
 
-## Use Case
-**You are a developer on the DeveloperStore team. Now we need to implement the API prototypes.**
+---
 
-As we work with `DDD`, to reference entities from other domains, we use the `External Identities` pattern with denormalization of entity descriptions.
+## 🧩 Features
 
-Therefore, you will write an API (complete CRUD) that handles sales records. The API needs to be able to inform:
+-   ✅ CRUD operations for **Sales**
+-   ✅ **Domain-driven design** (aggregates, value objects, and invariants)
+-   ✅ **CQRS pattern** with MediatR (commands and queries separated)
+-   ✅ **Pagination, sorting, and filtering** via query parameters
+-   ✅ **Domain events**: `SaleCreated`, `SaleModified`, `SaleCancelled`, `ItemCancelled`
+-   ✅ **Serilog logging** for structured event publication
+-   ✅ Unit testing ready
+-   ✅ Modular project organization (DDD-style folder structure)
 
-* Sale number
-* Date when the sale was made
-* Customer
-* Total sale amount
-* Branch where the sale was made
-* Products
-* Quantities
-* Unit prices
-* Discounts
-* Total amount for each item
-* Cancelled/Not Cancelled
+---
 
-It's not mandatory, but it would be a differential to build code for publishing events of:
-* SaleCreated
-* SaleModified
-* SaleCancelled
-* ItemCancelled
+## ⚙️ Tech Stack
 
-If you write the code, **it's not required** to actually publish to any Message Broker. You can log a message in the application log or however you find most convenient.
+| Layer         | Technology            |
+| ------------- | --------------------- |
+| **Framework** | .NET 8.0              |
+| **ORM**       | Entity Framework Core |
+| **Database**  | PostgreSQL            |
+| **Logging**   | Serilog               |
+| **Mediator**  | MediatR               |
+| **Mapping**   | AutoMapper            |
+| **Testing**   | xUnit + NSubstitute   |
 
-### Business Rules
+---
 
-* Purchases above 4 identical items have a 10% discount
-* Purchases between 10 and 20 identical items have a 20% discount
-* It's not possible to sell above 20 identical items
-* Purchases below 4 items cannot have a discount
+## 🧱 Project Structure
 
-These business rules define quantity-based discounting tiers and limitations:
+```
+root
+├── src/
+│   ├── Ambev.DeveloperEvaluation.WebApi/          → ASP.NET Core Web API (Controllers, Swagger)
+│   ├── Ambev.DeveloperEvaluation.Application/  → CQRS, DTOs, Handlers, Validators
+│   ├── Ambev.DeveloperEvaluation.Domain/       → Entities, Value Objects, Enums, Domain Events
+│   ├── Ambev.DeveloperEvaluation.ORM/          → EF Core Context & Configurations
+│   ├── Ambev.DeveloperEvaluation.IoC/          → Dependency Injection
+│   └── Ambev.DeveloperEvaluation.Common/       → Cross-cutting helpers, extensions
+│
+└── tests/
+    └── Ambev.DeveloperEvaluation.Tests/        → Unit and integration tests
+```
 
-1. Discount Tiers:
-   - 4+ items: 10% discount
-   - 10-20 items: 20% discount
+---
 
-2. Restrictions:
-   - Maximum limit: 20 items per product
-   - No discounts allowed for quantities below 4 items
+## ⚡ CQRS Implementation
 
-## Overview
-This section provides a high-level overview of the project and the various skills and competencies it aims to assess for developer candidates. 
+### Commands
 
-See [Overview](/.doc/overview.md)
+| Command             | Responsibility                                  |
+| ------------------- | ----------------------------------------------- |
+| `CreateSaleCommand` | Creates a new sale and emits `SaleCreatedEvent` |
+| `UpdateSaleCommand` | Updates sale data and emits `SaleModifiedEvent` |
+| `CancelSaleCommand` | Cancels a sale and emits `SaleCancelledEvent`   |
 
-## Tech Stack
-This section lists the key technologies used in the project, including the backend, testing, frontend, and database components. 
+### Queries
 
-See [Tech Stack](/.doc/tech-stack.md)
+| Query              | Responsibility                                              |
+| ------------------ | ----------------------------------------------------------- |
+| `GetSalesQuery`    | Returns a paginated list of sales with filters and ordering |
+| `GetSaleByIdQuery` | Returns sale details by ID                                  |
 
-## Frameworks
-This section outlines the frameworks and libraries that are leveraged in the project to enhance development productivity and maintainability. 
+---
 
-See [Frameworks](/.doc/frameworks.md)
+## 🔍 Pagination, Filtering and Sorting
 
-<!-- 
-## API Structure
-This section includes links to the detailed documentation for the different API resources:
-- [API General](./docs/general-api.md)
-- [Products API](/.doc/products-api.md)
-- [Carts API](/.doc/carts-api.md)
-- [Users API](/.doc/users-api.md)
-- [Auth API](/.doc/auth-api.md)
--->
+Following `general-api.md`, endpoints support:
 
-## Project Structure
-This section describes the overall structure and organization of the project files and directories. 
+| Parameter         | Description   | Example                                    |
+| ----------------- | ------------- | ------------------------------------------ |
+| `_page`           | Page number   | `?_page=2`                                 |
+| `_size`           | Page size     | `?_size=10`                                |
+| `_order`          | Sort fields   | `?_order=date desc,totalAmount asc`        |
+| `_minX` / `_maxX` | Range filters | `?_minDate=2024-01-01&_maxDate=2024-12-31` |
+| `field=value`     | Exact filters | `?status=Cancelled&customerId=...`         |
 
-See [Project Structure](/.doc/project-structure.md)
+Filtering and ordering are implemented dynamically via **Expression Trees** in the `GetSalesQueryHandler`.
+
+---
+
+## 🗾 Domain Events
+
+The events are collected by the domain entities, persisted via EF Core, and then dispatched through the `DomainEventDispatcher`, which logs them via **Serilog**.
+
+Example log:
+
+```
+[22:45:10 INF] 📣 Domain event published: SaleCreatedEvent | Payload: { SaleId = 45a..., SaleNumber = "S-2025-001", Date = 2025-10-20T22:45:10Z }
+```
+
+---
+
+## 🔰 Logging (Serilog)
+
+The API uses **Serilog** for structured, multi-sink logging.
+
+**Outputs**
+
+-   Console (`.WriteTo.Console()`)
+-   File (`logs/log-<date>.txt`)
+
+**Sample log format**
+
+```
+[2025-10-20 22:45:10 INF] SaleCreatedEvent | SaleId: 45a..., SaleNumber: S-2025-001
+```
+
+---
+
+## 🚀 Running the Application
+
+### 1️⃣ Configure Database
+
+1. Open the `template/backend` folder in a terminal and run: `docker compose up -d` to run the containers with de database and API.
+2. Run the migrations to update the database: `dotnet ef database update -c DefaultContext -s .\src\Ambev.DeveloperEvaluation.WebApi\Ambev.DeveloperEvaluation.WebApi.csproj`
+
+### 2️⃣ Swagger
+
+Once running, access Swagger UI at:
+
+```
+http://localhost:8080/swagger
+```
+
+---
+
+## 🤪 Tests and coverage
+
+To run the tests and the coverage report, run the script `coverage-report.bat` inside `template/backend`. Then open the generated `index.html` file inside `TestResults` folder.
+
+---
+
+## 👨‍💻 Author
+
+**Vitor Lacerda**  
+Fullstack Software Engineer — .NET | Angular  
+GitHub: [@vitorlacerda](https://github.com/vitorlacerda)
