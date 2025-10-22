@@ -9,6 +9,9 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
+      - ConnectionStrings__DefaultConnection=Host=ambev.developerevaluation.database;Port=5432;Database=developer_evaluation;Username=developer;Password=ev@luAt10n
+    networks:
+        - app-network
     ports:
       - "8080:8080"
     volumes:
@@ -18,11 +21,12 @@ services:
   ambev.developerevaluation.database:
     container_name: ambev_developer_evaluation_database
     image: postgres:13
-
     environment:
       POSTGRES_DB: developer_evaluation
       POSTGRES_USER: developer
       POSTGRES_PASSWORD: ev@luAt10n
+    networks:
+        - app-network
     ports:
       - "5432:5432"
     restart: unless-stopped
@@ -33,6 +37,8 @@ services:
     environment:
         MONGO_INITDB_ROOT_USERNAME: developer
         MONGO_INITDB_ROOT_PASSWORD: ev@luAt10n
+    networks:
+        - app-network
     ports:
       - "27017"
 
@@ -43,5 +49,11 @@ services:
     environment:
        MONGO_INITDB_ROOT_USERNAME: developer
        MONGO_INITDB_ROOT_PASSWORD: ev@luAt10n
+    networks:
+        - app-network
     ports:
        - "6379"
+
+networks:
+    app-network:
+        driver: bridge
