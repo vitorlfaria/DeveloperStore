@@ -123,7 +123,8 @@ The API uses **Serilog** for structured, multi-sink logging.
 ### 1️⃣ Configure Database
 
 1. Open the `template/backend` folder in a terminal and run: `docker compose up -d` to run the containers with de database and API.
-2. Run the migrations to update the database: `dotnet ef database update -c DefaultContext -s .\src\Ambev.DeveloperEvaluation.WebApi\Ambev.DeveloperEvaluation.WebApi.csproj`
+2. Install dotnet-ef tool if you don't have it: `dotnet tool install --global dotnet-ef`
+3. Run the migrations to update the database: `dotnet ef database update -c DefaultContext -s .\src\Ambev.DeveloperEvaluation.WebApi\Ambev.DeveloperEvaluation.WebApi.csproj`
 
 ### 2️⃣ Swagger
 
