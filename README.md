@@ -134,6 +134,10 @@ Once running, access Swagger UI at:
 http://localhost:8080/swagger
 ```
 
+### 3️⃣ Follow the api logs
+
+You can see the API logs with: `docker compose logs -f ambev.developerevaluation.webapi`
+
 ---
 
 ## 🤪 Tests and coverage
